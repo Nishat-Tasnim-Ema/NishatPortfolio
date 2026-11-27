@@ -1,0 +1,270 @@
+@model PortfolioViewModel
+@{
+    ViewData["Title"] = "Nishat Tasnim Ema · Research Portfolio";
+    const double ChartMin = 85, ChartMax = 92;
+    var inv = CultureInfo.InvariantCulture;
+    var baseline = Model.HeartDiseaseResults.First(r => r.Name == Model.BaselineModel).Accuracy;
+
+    (string Label, string Key, string Color, string Soft) StatusInfo(PublicationStatus s) => s switch
+    {
+        PublicationStatus.Accepted => ("Accepted", "acc", "--sage", "--sage-soft"),
+        PublicationStatus.InRevision => ("In revision", "rev", "--amber", "--amber-soft"),
+        _ => ("Ongoing", "on", "--blue", "--blue-soft"),
+    };
+}
+
+<header class="hero" id="top">
+    <div class="wrap">
+        <div>
+            <span class="eyebrow mono"><span class="dot"></span>@Model.Eyebrow</span>
+            <h1>Machine learning for <span>early diagnosis</span> and a <em>healthier environment</em>.</h1>
+            <p class="lede">@Model.Intro</p>
+            <div class="ctas">
+                <a class="btn pri" href="@Model.LinkedInUrl">LinkedIn</a>
+                <a class="btn" href="@Model.GitHubUrl">GitHub ↗</a>
+                <a class="btn" href="#research">Explore research</a>
+            </div>
+            <div class="stats">
+                @foreach (var s in Model.Stats)
+                {
+                    <div class="stat"><b>@s.Value</b><span>@s.Label</span></div>
+                }
+            </div>
+            <div class="tags">
+                @foreach (var t in Model.HeroTags)
+                {
+                    <span class="tag">@t</span>
+                }
+            </div>
+        </div>
+
+        <div class="side">
+            <div class="stage" id="stage">
+                <div class="bar">
+                    <b id="cname">Bamboo</b>
+                    <div class="pick" id="pick" role="radiogroup" aria-label="Choose a companion">
+                        <button data-k="panda" role="radio">Panda</button><button data-k="rabbit" role="radio">Rabbit</button>
+                    </div>
+                </div>
+                <div class="slot" id="slot"><span>Companion's desk<br />click to call back</span></div>
+                <div class="foot">drag me anywhere · click me to ask about Ema's research</div>
+            </div>
+
+            <div class="card focus">
+                <div class="lbl">Research focus: pick one</div>
+                <div class="chips" id="focusChips">
+                    @for (var i = 0; i < Model.Focus.Count; i++)
+                    {
+                        <button class="chip@(i == 0 ? " on" : "")" data-focus="@i">@Model.Focus[i].Key</button>
+                    }
+                </div>
+                @for (var i = 0; i < Model.Focus.Count; i++)
+                {
+                    var f = Model.Focus[i];
+                    <div data-focus-panel="@i" hidden="@(i != 0)">
+                        <h3>@f.Heading</h3>
+                        <p>@f.Description</p>
+                        <span class="now"><span class="dot"></span>NOW · @f.Now</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</header>
+
+<main>
+    <section class="band" id="research">
+        <div class="wrap">
+            <div class="shead">
+                <div><span class="num">01 · Research &amp; publications</span><h2>Papers, manuscripts and proposals</h2></div>
+                <div class="tabs" id="pubTabs">
+                    <button class="chip on" data-pub="all">All</button>
+                    <button class="chip" data-pub="acc">Accepted</button>
+                    <button class="chip" data-pub="rev">In revision</button>
+                    <button class="chip" data-pub="on">Ongoing</button>
+                </div>
+            </div>
+            <div class="pubs">
+                @foreach (var p in Model.Publications)
+                {
+                    var st = StatusInfo(p.Status);
+                    <article class="card pub" data-status="@st.Key">
+                        <div>
+                            <span class="badge" style="--c:var(@st.Color);--cs:var(@st.Soft)">@st.Label</span>
+                            <span class="mono muted" style="margin-left:8px">@p.When</span>
+                            <h3>@p.Title</h3>
+                            <p>@p.Venue</p>
+                            <ul>
+                                @foreach (var pt in p.Points)
+                                {
+                                    <li>@pt</li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="meta">
+                            @foreach (var m in p.Meta)
+                            {
+                                <div>@m.Label<br /><b>@m.Value</b></div>
+                            }
+                            <button class="ask" data-ask="@p.AskPrompt">Ask the companion to summarise →</button>
+                        </div>
+                    </article>
+                }
+            </div>
+            <p class="interests">Research interests: @Model.ResearchInterests</p>
+        </div>
+    </section>
+
+    <section class="band" id="results">
+        <div class="wrap">
+            <span class="num">02 · Results spotlight</span>
+            <h2>Early heart-disease detection: four models compared</h2>
+            <div class="rgrid">
+                <div>
+                    <p class="lede" style="margin-top:0">Logistic Regression, Random Forest, XGBoost and CatBoost were trained and evaluated on the UCI Heart Disease dataset and a Kaggle dataset. Gradient-boosted trees came out ahead, with CatBoost the most accurate so far.</p>
+                    <div class="detail" id="detail"></div>
+                    <p class="note">Accuracy from experiments to date. The manuscript is under revision, so numbers may change.</p>
+                </div>
+                <div class="card chart">
+                    <b style="color:var(--heading)">Accuracy by model (%)</b> <span class="muted" style="font-size:13px">· click a bar</span>
+                    <div class="plot" id="plot" data-baseline="@baseline.ToString("0.00", inv)">
+                        <div class="yax">
+                            @for (var v = (int)ChartMin; v <= (int)ChartMax; v++)
+                            {
+                                <div style="bottom:@(((v - ChartMin) / (ChartMax - ChartMin) * 100).ToString("0.##", inv))%"><span>@v</span></div>
+                            }
+                        </div>
+                        @for (var i = 0; i < Model.HeartDiseaseResults.Count; i++)
+                        {
+                            var r = Model.HeartDiseaseResults[i];
+                            var height = ((r.Accuracy - ChartMin) / (ChartMax - ChartMin) * 100).ToString("0.##", inv);
+                            var acc = r.Accuracy.ToString("0.00", inv);
+                            <div class="col@(i == 0 ? " sel" : "")" tabindex="0" role="button" aria-label="@r.Name @acc%" data-name="@r.Name" data-acc="@acc">
+                                <b>@acc</b><i data-h="@height"></i><span>@r.ShortName</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="band" id="projects">
+        <div class="wrap">
+            <div class="shead">
+                <div><span class="num">03 · Projects</span><h2>Things I've built</h2></div>
+                <div class="tabs" id="projTabs">
+                    <button class="chip on" data-cat="All">All</button>
+                    @foreach (var c in Model.Projects.Select(p => p.Category).Distinct())
+                    {
+                        <button class="chip" data-cat="@c">@c</button>
+                    }
+                </div>
+            </div>
+            <div class="pgrid">
+                @foreach (var p in Model.Projects)
+                {
+                    <article class="card proj" data-category="@p.Category">
+                        <div class="top"><b>@p.Category</b><span>@p.Tag</span></div>
+                        <h3>@p.Title</h3>
+                        <p>@p.Description</p>
+                        <div class="foot">
+                            <span class="muted">@(p.Tag.Split(" · ")[0])</span>
+                            @if (p.Repo is not null)
+                            {
+                                <a href="@($"{Model.GitHubUrl}/{p.Repo}")">Repository ↗</a>
+                            }
+                            else
+                            {
+                                <button data-ask="@($"Tell me about {p.Title}")">Ask the companion</button>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="band" id="skills">
+        <div class="wrap">
+            <span class="num">04 · Skills</span>
+            <h2>Toolkit</h2>
+            <div class="sgrid">
+                @foreach (var g in Model.Skills)
+                {
+                    <div class="card sk">
+                        <h3>@g.Name</h3>
+                        <div>
+                            @foreach (var item in g.Items)
+                            {
+                                <span class="tag">@item</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="band" id="journey">
+        <div class="wrap">
+            <span class="num">05 · Journey</span>
+            <h2>Education, certifications and workshops</h2>
+            <div class="jgrid">
+                <div class="card edu">
+                    <span class="mono muted">Sep 2023 – Present</span>
+                    <h3 style="margin-top:6px">B.Sc. in Computer Science &amp; Engineering, AIUB</h3>
+                    <p class="muted" style="margin:4px 0 0;font-size:15px">Major: Information Systems · CGPA 3.62 · 10th semester (final year)</p>
+                    <div class="prog"><i id="progBar" data-w="@Model.CreditsPercent"></i></div>
+                    <span class="mono muted">@Model.CreditsDone of @Model.CreditsTotal credits · @Model.CreditsPercent%</span>
+                    <ul class="tl">
+                        @foreach (var t in Model.Timeline)
+                        {
+                            <li style="--c:var(@t.Tone)"><time>@t.When</time><h3 style="font-size:16px">@t.Title</h3><p>@t.Detail</p></li>
+                        }
+                    </ul>
+                </div>
+                <div>
+                    <div class="sub" style="margin-top:0">Certifications</div>
+                    <div class="list">
+                        @foreach (var c in Model.Certifications)
+                        {
+                            <div class="card row"><div>@c.Title<small>@c.Issuer</small></div><time>@c.When</time></div>
+                        }
+                    </div>
+                    <div class="sub">Workshops &amp; webinars <span class="muted" style="font-weight:400;font-size:13px">· AIUB Research &amp; Development Club</span></div>
+                    <div class="list">
+                        @foreach (var w in Model.Workshops)
+                        {
+                            <div class="card row"><div>@w.Title<small>@w.Issuer</small></div><time>@w.When</time></div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="band" id="contact">
+        <div class="wrap contact">
+            <div>
+                <span class="num">Contact</span>
+                <h2>Open to thesis collaborations and research roles</h2>
+                <p class="lede">I'm looking for an AI/ML-focused thesis and graduate research in healthcare and environmental applications. I'm happy to talk about collaborations, datasets or ideas.</p>
+                <div class="ctas"><a class="btn pri" href="@Model.LinkedInUrl">Message on LinkedIn</a></div>
+            </div>
+            <div class="card clist">
+                @foreach (var c in Model.Contact)
+                {
+                    if (c.Url is not null)
+                    {
+                        <a href="@c.Url"><b>@c.Label</b><span>@c.Value</span></a>
+                    }
+                    else
+                    {
+                        <div><b>@c.Label</b><span>@c.Value</span></div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+</main>

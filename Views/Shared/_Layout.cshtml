@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(ViewData["Title"] ?? "Nishat Tasnim Ema · Research Portfolio")</title>
+    <meta name="description" content="Nishat Tasnim Ema: machine learning researcher working on early diagnosis and environmental monitoring." />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script>
+        /* Apply the saved theme before first paint to avoid a flash. */
+        try { var t = localStorage.getItem("nte-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) { }
+    </script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="skip" href="#research">Skip to content</a>
+
+    <nav>
+        <div class="wrap">
+            <a class="logo" asp-controller="Home" asp-action="Index" aria-label="Nishat Tasnim Ema, home">
+                <svg viewBox="0 0 36 36" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop style="stop-color:var(--logo1)" /><stop offset="1" style="stop-color:var(--logo2)" /></linearGradient></defs><circle cx="18" cy="18" r="18" fill="url(#lg)" /><path d="M11.5 25V11l13 14V11" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none" /><g fill="#fff"><circle cx="11.5" cy="25" r="2.5" /><circle cx="11.5" cy="11" r="2.5" /><circle cx="24.5" cy="25" r="2.5" /><circle cx="24.5" cy="11" r="2.5" /></g></svg>
+                <b>Ema</b>
+            </a>
+            <div class="links">
+                <a href="#research">Research</a><a href="#results">Results</a><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="#journey">Journey</a><a href="#contact">Contact</a>
+            </div>
+            <button class="ib theme-btn" id="theme" aria-label="Switch to dark mode" style="margin-left:auto">
+                <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" /><g class="rays"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.55 1.55M17.15 17.15l1.55 1.55M5.3 18.7l1.55-1.55M17.15 6.85l1.55-1.55" /></g></svg>
+                <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.2A8 8 0 0 1 9.8 4a8 8 0 1 0 10.2 10.2Z" /><path class="star s1" d="M17 3.5v2.4M15.8 4.7h2.4" /><path class="star s2" d="M20.6 8.4v1.6M19.8 9.2h1.6" /></svg>
+            </button>
+            <button class="btn" id="askBtn">Ask assistant</button>
+            <a class="btn pri" asp-controller="Home" asp-action="DownloadCv"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" /></svg>Download CV</a>
+        </div>
+    </nav>
+
+    @RenderBody()
+
+    <footer>
+        <div class="wrap"><span>© @DateTime.Now.Year Nishat Tasnim Ema</span><span>Interests: AI research · UI design · animation · chess</span></div>
+    </footer>
+
+    <!-- Research companion (drawn and animated by site.js) -->
+    <div id="bot" role="button" tabindex="0" aria-label="Research companion. Drag to move, Enter to chat."><div class="fl" id="art"></div></div>
+    <div class="tip" id="tip"></div>
+
+    <div id="chat" role="dialog" aria-label="Chat with the research companion">
+        <div class="chh">
+            <span class="dot"></span>
+            <div><b id="chname">Bamboo</b><small>answers from Ema's CV</small></div>
+            <div class="acts">
+                <button class="ib" id="follow" title="Follow my cursor" aria-pressed="false">⌖</button>
+                <button class="ib" id="home" title="Send back to the desk">⌂</button>
+                <button class="ib" id="close" aria-label="Close chat">✕</button>
+            </div>
+        </div>
+        <div id="log" aria-live="polite"></div>
+        <div id="sugs">
+            <button class="chip">What is EcoSense?</button>
+            <button class="chip">Best heart-disease model?</button>
+            <button class="chip">Thesis plans?</button>
+            <button class="chip">Download CV</button>
+            <button class="chip">How to contact Ema?</button>
+        </div>
+        <form id="ask"><input id="q" placeholder="Ask about my research…" autocomplete="off" maxlength="500" aria-label="Your question" /><button aria-label="Send">↑</button></form>
+    </div>
+
+    <script>window.PORTFOLIO = { cvUrl: "@Url.Action("DownloadCv", "Home")", askUrl: "@Url.Content("~/api/assistant/ask")" };</script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

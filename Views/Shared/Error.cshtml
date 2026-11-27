@@ -1,0 +1,17 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Something went wrong";
+}
+<main>
+    <section class="band" style="border-top:0">
+        <div class="wrap">
+            <span class="num">Error</span>
+            <h2>Something went wrong.</h2>
+            <p class="lede">Sorry, the page couldn't be loaded. Please go back to the <a href="~/">home page</a>.</p>
+            @if (Model?.ShowRequestId == true)
+            {
+                <p class="note">Request ID: <code>@Model.RequestId</code></p>
+            }
+        </div>
+    </section>
+</main>
